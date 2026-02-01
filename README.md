@@ -39,6 +39,10 @@ pattern, or through `dkms` (recommended).
 
     dkms install .
 
+Put `udev/99-vendor-reset.rules` into `/etc/udev/rules.d/99-vendor-reset.rules`
+
+    udevadm control --reload-rules && udevadm trigger
+
 ## Usage
 
 Either `modprobe vendor-reset` or add the device to the appropriate place to
@@ -50,6 +54,28 @@ try to perform completely breaks the GPU which this module can not recover from.
 Please consult your distributions documentation on how to do this, for most
 however it will be as simple as adding `vendor-reset` to `/etc/modules` and
 updating your initrd.
+
+Then execute: `echo device_specific > /sys/bus/pci/devices/[REPLACE_WITH_GPU_ID]/reset_method.`
+
+Both of these things are also accomplished by `99-vendor-reset.rules`.
+
+If successful, vendor-reset will output to dmesg and prevent the reset bug:
+
+```
+[  802.217359] vfio-pci 0000:03:00.0: AMD_NAVI32: version 1.1
+[  802.217361] vfio-pci 0000:03:00.0: AMD_NAVI32: performing pre-reset
+[  802.217457] vfio-pci 0000:03:00.0: AMD_NAVI32: performing reset
+[  802.240518] ATOM BIOS: 115-D712BP2-100
+[  802.240520] vendor-reset-drm: atomfirmware: bios_scratch_reg_offset initialized to 4c
+[  802.240523] vfio-pci 0000:03:00.0: AMD_NAVI32: bus reset disabled? yes
+[  802.240527] vfio-pci 0000:03:00.0: AMD_NAVI32: SMU response reg: 1, sol reg: 195b6400, mp1 intr enabled? yes, bl ready? no
+[  802.240529] vfio-pci 0000:03:00.0: AMD_NAVI32: Clearing scratch regs 6 and 7
+[  802.241314] vfio-pci 0000:03:00.0: AMD_NAVI32: begin psp mode 1 reset
+[  802.745298] vfio-pci 0000:03:00.0: AMD_NAVI32: mode1 reset succeeded
+[  802.745367] vfio-pci 0000:03:00.0: AMD_NAVI32: PSP mode1 reset successful
+[  802.745374] vfio-pci 0000:03:00.0: AMD_NAVI32: performing post-reset
+[  802.770050] vfio-pci 0000:03:00.0: AMD_NAVI32: reset result = 0
+```
 
 ## Supported Devices
 
